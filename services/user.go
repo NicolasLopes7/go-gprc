@@ -97,7 +97,7 @@ func (*UserService) AddUsers(stream pb.UserService_AddUsersServer) error {
 	}
 }
 
-func (*UserService) AddUsersStreamBoth(stream pb.UserService_AddUserStreamBothServer) error {
+func (*UserService) AddUserStreamBoth(stream pb.UserService_AddUserStreamBothServer) error {
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
