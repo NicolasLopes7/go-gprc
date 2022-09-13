@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/NicolasLopes7/gprc-go/pb"
 )
@@ -25,4 +26,45 @@ func (*UserService) AddUser(ctx context.Context, req *pb.User) (*pb.User, error)
 		Name:  req.GetName(),
 		Email: req.GetEmail(),
 	}, nil
+}
+
+/*
+That method emulates a long user register process.
+Let's imagine that on your client registration you need to check some informations on external services: KYC, Document OCR...
+We want to be able to see the progress in real time of that registration. Luckily, gRPC has a solution for that. Streams.
+*/
+func (*UserService) AddUserVerbose(req *pb.User, stream pb.UserService_AddUserVerboseServer) error {
+	var user = pb.User{
+		Id:    "123",
+		Name:  req.GetName(),
+		Email: req.GetEmail(),
+	}
+
+	stream.Send(&pb.UserResultStream{
+		Status: "Init",
+		User:   &user,
+	})
+
+	time.Sleep(time.Second * 2)
+
+	stream.Send(&pb.UserResultStream{
+		Status: "User has been saved on our DB",
+		User:   &user,
+	})
+
+	time.Sleep(time.Second * 2)
+
+	stream.Send(&pb.UserResultStream{
+		Status: "Document OCR approved",
+		User:   &user,
+	})
+
+	time.Sleep(time.Second * 1)
+
+	stream.Send(&pb.UserResultStream{
+		Status: "Completed",
+		User:   &user,
+	})
+
+	return nil
 }
